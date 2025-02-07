@@ -1,0 +1,252 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<style>
+/* Reseteo de márgenes y rellenos básicos */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f4f9;
+  color: #333;
+  line-height: 1.6;
+  padding: 20px;
+}
+
+/* Container principal con márgenes */
+main {
+  max-width: 800px;  /* Ancho máximo del contenido */
+  margin: 30px auto;  /* Centra el contenido */
+}
+
+header {
+  background-color: #4CAF50;
+  color: white;
+  text-align: center;
+  padding: 20px 0;
+}
+
+h1 {
+  font-size: 2em;
+}
+
+h2 {
+  color: #333;
+  font-size: 1.5em;
+  margin-bottom: 10px;
+}
+
+.section {
+  background-color: #fff;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+p {
+  font-size: 1em;
+  color: #666;
+  margin-bottom: 15px;
+}
+
+/* Fragmentos de código */
+code {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1em;  /* Igual al tamaño de los párrafos */
+  color: #d9534f;  /* Color que resalta */
+  background-color: #f9f9f9;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+footer {
+  text-align: center;
+  padding: 10px;
+  background-color: #f1f1f1;
+  margin-top: 30px;
+}
+
+/* Resaltado para textos importantes */
+strong {
+  color: #4CAF50;
+}
+
+/* Enlaces */
+a {
+  color: #4CAF50;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Agregar un espacio adicional entre los párrafos */
+section p {
+  margin-top: 10px;
+}
+
+table, th, td {
+  border: 1px solid black;
+  padding: 5px;
+}
+
+/* Estilo para listas no numeradas */
+ul {
+  list-style-type: disc; /* Bullet normal */
+  padding-left: 20px; /* Sangrado para alinear el texto con el bullet */
+  margin-bottom: 15px;
+}
+
+ul li {
+  margin-bottom: 8px; /* Espaciado entre elementos de la lista */
+}
+
+/* Estilo para listas anidadas */
+ul ul {
+  margin-top: 10px; /* Espaciado entre listas anidadas */
+  padding-left: 30px; /* Desplaza los bullets de la lista interior */
+}
+
+/* Quotes */
+blockquote {
+  margin-left: 20px;  /* Desplaza la cita 20 píxeles hacia la derecha */
+  font-style: italic; /* Opcional: para hacer la cita en cursiva */
+  border-left: 4px solid #ccc; /* Opcional: agrega una línea vertical a la izquierda */
+  padding-left: 10px; /* Opcional: agrega un poco de espacio entre el texto y la línea */
+}
+
+
+/* Style for rendering keys */
+kbd {
+  background-color: #eee;
+  border-radius: 3px;
+  border: 1px solid #b4b4b4;
+  box-shadow:
+    0 1px 1px rgba(0, 0, 0, 0.2),
+    0 2px 0 0 rgba(255, 255, 255, 0.7) inset;
+  color: #333;
+  display: inline-block;
+  font-size: 1em;
+  font-weight: 700;
+  line-height: 1;
+  padding: 2px 4px;
+  white-space: nowrap;
+}
+
+</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRELAYN Help</title>
+</head>
+<body>
+	<header>
+		<h1>PRELAYN Help</h1>
+    	<p>Welcome to PRELAYN Help. Here you'll find the basic tips to use the PRELAYN application.</p>
+    	<p>This program automatically adds a prefix to the layer names of an AutoCAD drawing.</p>
+	</header>
+
+	<main>
+    
+    <section class="section">
+    	<h2>Prefix</h2>
+  		<p>The following characters are not valid in layer names:</p>
+
+	    <table>
+ 		  <tr> <th>Symbol</th> <th>Name</th> </tr>
+ 		  <tr> <td style="text-align: center;">&ast;</td> <td>Asterisk</td> </tr>
+   		<tr> <td style="text-align: center;">&bsol;</td> <td>Backslash</td> </tr>
+   		<tr> <td style="text-align: center;">&#96;</td> <td>Backtick</td> </tr>
+ 	  	<tr> <td style="text-align: center;">&colon;</td> <td>Colon</td> </tr>
+ 		  <tr> <td style="text-align: center;">&comma;</td> <td>Comma</td> </tr>
+ 	  	<tr> <td style="text-align: center;">&equals;</td> <td>Equals sign</td> </tr>
+ 		  <tr> <td style="text-align: center;">&gt;</td> <td>Greater-than sign</td> </tr>
+ 		  <tr> <td style="text-align: center;">&lt;</td> <td>Less-than sign</td> </tr>
+ 		  <tr> <td style="text-align: center;">&quest;</td> <td>Question mark</td> </tr>
+ 		  <tr> <td style="text-align: center;">&quot;</td> <td>Quotation mark</td> </tr>
+ 		  <tr> <td style="text-align: center;">&semi;</td> <td>Semicolon</td> </tr>
+ 		  <tr> <td style="text-align: center;">&sol;</td> <td>Slash</td> </tr>
+ 		  <tr> <td style="text-align: center;">&vert;</td> <td>Vertical bar</td> </tr>
+	  </table>
+	</section>
+
+  <section class="section">
+	  <h2>Python package</h2>
+		<p>Prefixing can be carried out using the following Python packages:</p>
+
+      <h3><code>pyautocad</code></h3>
+      <p>Changes are applied to the current drawing. If no drawing is open in AutoCAD, an error is thrown. In this case you should open a drawing and click on the <kbd>Run</kbd> button again. The modified file must be saved manually (possibly with a different name).</p>
+
+   	  <h3><code>ezdxf</code></h3>
+      <p>This is the only package that does not need a running instance of AutoCAD to work.</p>
+
+      <h3><code>win32com</code></h3>
+      <p>This package actually underlies <code>pyautocad</code>. See the 'Errors' section below for further details.</p>
+
+   	  <h3><code>pyautogui</code></h3>
+      <p>This method has a limitation that makes its application very difficult: <strong>the names of the layers of the drawing to be modified must be hardcoded</strong>, since recovering them with <code>pyautogui</code>, although feasible, is very complicated.</p>
+      <p>For this package to work as expected, you have to switch from the PRELAYN window to the AutoCAD window shortly after pressing the <kbd>Run</kbd> button (you have approximately 3 seconds to do so). Otherwise the prefixing operation will fail. Possible methods for switching from one window to another include the following:</p>
+    	<ul>
+	    	<li>Clicking on the AutoCAD window.</li>
+		   	<li>Holding <kbd>Ctrl</kbd> + Click on the icon of the AutoCAD application in the taskbar.</li>
+		    <li>Using <kbd>Win</kbd> + <kbd>Ctrl</kbd> + <kbd>n</kbd>, where n is position of the AutoCAD application on taskbar.</li>
+    	</ul>
+      <p>As <code>pyautogui</code> works by sending keystrokes to AutoCAD, this method takes much longer to complete the prefixing task than the other packages considered.</p>
+
+    <hr>
+		  
+    <p>It is highly recommendable to <strong>launch AutoCAD application before trying to modify a drawing</strong> (this does not apply to the <code>ezdxf</code> package). If the output file is open, an error will be thrown in runtime. You have to close the output file before clicking the <kbd>Run</kbd> button again.</p>
+	</section>
+
+  <section class="section">
+	  <h2>Files and folders</h2>
+		<p>The names of the input and output files can be entered in the corresponding text box. Alternatively, you can select an existing file through a dialog box by clicking the <kbd>Browse...</kbd> button. If the entered file is not in the displayed folder, you can select a different folder through a dialog box by clicking on the <kbd>Change...</kbd> button. Note that if the output file already exists, it will be overwritten.</p>
+	</section>
+
+  <section class="section">
+	  <h2>Action buttons</h2>
+		<p>In addition to the buttons used to select a file or folder through a dialog box, the graphical user interface has three action buttons:</p>
+
+      <h3><kbd>Run</kbd></h3>
+      <p>Checks that all the settings are correct and then calls the function that will add the prefix to the layer names of a drawing.</p>
+
+     	<h3><kbd>Help</kbd></h3>
+      <p>Opens this page on a browser.</p>
+
+     	<h3><kbd>Exit</kbd></h3>
+      <p>Closes the app window and terminates the program.</p>
+	</section>
+
+  <section class="section">
+	  <h2>Errors</h2>
+		<p>The classes <a href="https://comtypes.readthedocs.io/en/stable/" title="The comtypes package" target="_blank"><code>comtypes.COMError</code></a> and <a href="https://timgolden.me.uk/pywin32-docs/com_error.html" title="com_error Object" target="_blank"><code>pywintypes.com_error</code></a> are poorly documented. As a result, handling these exception types is not straightforward and runtime errors are not uncommon. The user is alerted to errors in the application status bar and through pop-up message boxes. The following is a description of the errors that occur most frequently when using PRELAYN and how to resolve them:</p>
+   	    
+   	  <h4>COMError >>> Failed to get the Document object</h4>
+   	  <p>This error is thrown when <code>pyautocad</code> is selected and no drawing is open in AutoCAD. By opening the drawing file to be modified, the problem should be solved.</p>
+
+   	  <h4>com_error >>> Error saving the document</h4>
+   	  <p>AutoCAD may lock a file to prevent multiple processes from modifying it simultaneously. As a consequence of it, if you specify an output file that is already open, PRELAYN will not be able to save it. Before attempting to add a prefix to the layer names of a drawing file, make sure the output file you specified is not open elsewhere.</p>
+
+   	  <h4>com_error >>> Call was rejected by callee</h4>
+   	  <p>This error typically occurs when you are you're trying to call a method or access an object in AutoCAD while it is either busy or not ready to process the request. Adding small delays programmatically is a common workaround to this issue. PRELAYN does not implement this solution, leaving it up to the user to retry the execution of the task by pressing the <kbd>Run</kbd> button in case the error occurs.</p>
+
+   	  <h4>AttributeError, TypeError, IndexError...</h4>
+   	  <p>These exceptions are likely to occurred during handling of a COM-related error. In many cases, when the <kbd>Run</kbd> button is pressed again, the problem disapears. If not, make sure that you are not trying to modify a file that is currently used by another process.</p>
+
+   	  <h4>AutoCAD Message</h4>
+   	  <p>If you use <code>pyautogui</code> and the output file is open, a message box will pop-up in AutoCAD:</p>
+   	    <blockquote>C:\Users\Me\Drawings\outfile.dwg exists and is open for editing in another session or by another user and cannot be replaced.</blockquote>
+   	  <p>Simply close the file and make a new attempt.</p>
+	</section>
+	</main>
+    
+  <footer>
+    <p>Version 1.0 - Created by Antonio Fernández.</p>
+  </footer>
+</body>
+</html>
