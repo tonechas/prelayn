@@ -44,13 +44,34 @@ from pywintypes import com_error
 from win32com.client.dynamic import Dispatch
 
 
+# >---------- EXCEPTIONS ----------< #
+class PrefixNotSpecified(ValueError):
+    """User did not enter a prefix."""
+
+class PrefixNotValid(ValueError):
+    """Prefix contains illegal character(s)."""
+
+class FileNotSpecified(ValueError):
+    """File not specified."""
+
+class ExtensionNotCompatible(ValueError):
+    """File extension not compatible with selected Python package."""
+
+class NoPythonPackageSelected(ValueError):
+    """Python package not specified."""
+
+class UnknownPythonPackage(ValueError):
+    """Unknown Python package."""
+
+
+# >---------- CLASSES ----------< #
 class PrefixAdder():
     """Class for prefixing layer names through different packages."""
     RESERVED = ("0", "Defpoints")
     LAYER_0 = "0"
     CLAYER = "$CLAYER"
-    # `NAMES` must be hardcoded for `add_prefix_pyautogui` to work
-    NAMES = ["Layer1", "Layer2", "Layer3", "Layer4"]
+    # `LAYER_NAMES` must be hardcoded for `add_prefix_pyautogui` to work
+    LAYER_NAMES = ["Layer1", "Layer2", "Layer3", "Layer4"]
 
     def __init__(self, prefix, package, infile, outfile):
         """Initialize instance.
@@ -79,29 +100,6 @@ class PrefixAdder():
             raise UnknownPythonPackage("Unknown Python package")
         func()
     
-    def add_prefix_pyautocad(self):
-        """`pyautocad`-based implementation."""
-        acad = Autocad(create_if_not_exists=True)
-        for layer in acad.doc.Layers:
-            name = layer.Name
-            if name not in self.RESERVED:
-                new_name = self.prefix + name
-                layer.Name = new_name
-
-    def add_prefix_ezdxf(self):
-        """`ezdxf`-based implementation."""
-        doc = ezdxf.readfile(self.infile)
-        clayer_name = doc.header[self.CLAYER]
-        doc.header[self.CLAYER] = self.LAYER_0
-        names = [layer.dxf.name for layer in doc.layers]
-        for name in names:
-            if name not in self.RESERVED:
-                layer = doc.layers.get(name)
-                new_name = self.prefix + name
-                layer.rename(new_name)
-        doc.header[self.CLAYER] = self.prefix + clayer_name
-        doc.saveas(self.outfile)
-
     def add_prefix_win32com(self):
         """`win32com`-based implementation."""
         acad = Dispatch("AutoCAD.Application")
@@ -113,6 +111,15 @@ class PrefixAdder():
                 new_name = self.prefix + name
                 layer.Name = new_name
         doc.SaveAs(self.outfile)
+
+    def add_prefix_pyautocad(self):
+        """`pyautocad`-based implementation."""
+        acad = Autocad(create_if_not_exists=True)
+        for layer in acad.doc.Layers:
+            name = layer.Name
+            if name not in self.RESERVED:
+                new_name = self.prefix + name
+                layer.Name = new_name
 
     def add_prefix_pyautogui(self):
         """`pyautogui`-based implementation."""
@@ -132,7 +139,7 @@ class PrefixAdder():
         try:
             os.startfile(f"{self.infile}")
             time.sleep(3)
-            for name in self.NAMES:
+            for name in self.LAYER_NAMES:
                 typewrite("-LAYER")
                 typewrite("Rename")
                 typewrite(name)
@@ -146,61 +153,19 @@ class PrefixAdder():
         except:
             raise
 
-
-# >---------- EXCEPTIONS ----------< #
-class PrefixNotSpecified(ValueError):
-    """User did not enter a prefix."""
-
-class PrefixNotValid(ValueError):
-    """Prefix contains illegal character(s)."""
-
-class FileNotSpecified(ValueError):
-    """File not specified."""
-
-class ExtensionNotCompatible(ValueError):
-    """File extension not compatible with selected Python package."""
-
-class NoPythonPackageSelected(ValueError):
-    """Python package not specified."""
-
-class UnknownPythonPackage(ValueError):
-    """Unknown Python package."""
-
-
-def shorten_path(long_path, limit=50):
-    """Utility function for limiting the lenght of a given path by
-    replacing the middle parts by elipsis (...).
-
-    Parameters
-    ----------
-    long_path : pathlib.Path
-        Path to be shortened.
-    limit : int (optional, default=50)
-        Maximum length of the shortened path.
-
-    Returns
-    -------
-    The shortened path as a string.
-    """
-    long_string = str(long_path)
-    if len(long_string) <= limit:
-        return long_string
-    parts = long_path.parts
-    head = parts[0] + "..."
-    remaining = limit - len(head)
-    last = parts[-1]
-    if len(last) > remaining:
-        return head + last[-remaining:]
-    else:
-        tail = []
-        for part in parts[:0:-1]:
-            if remaining > len(part):
-                tail.append(part)
-                tail.append(os.sep)
-                remaining -= len(part + os.sep)
-            else:
-                break
-        return head + "".join(tail[::-1])
+    def add_prefix_ezdxf(self):
+        """`ezdxf`-based implementation."""
+        doc = ezdxf.readfile(self.infile)
+        clayer_name = doc.header[self.CLAYER]
+        doc.header[self.CLAYER] = self.LAYER_0
+        names = [layer.dxf.name for layer in doc.layers]
+        for name in names:
+            if name not in self.RESERVED:
+                layer = doc.layers.get(name)
+                new_name = self.prefix + name
+                layer.rename(new_name)
+        doc.header[self.CLAYER] = self.prefix + clayer_name
+        doc.saveas(self.outfile)
 
 
 class Application(tk.Frame):
@@ -270,16 +235,16 @@ class Application(tk.Frame):
 
     ILLEGAL = set("<>\\/\":;*?|,=`")
     
-    PYAUTOCAD = "pyautocad"
-    EZDXF = "ezdxf"
     WIN32COM = "win32com"
+    PYAUTOCAD = "pyautocad"
     PYAUTOGUI = "pyautogui"
+    EZDXF = "ezdxf"
 
     DWG = ".dwg"
     DXF = ".dxf"
     
-    PACKAGES = (PYAUTOCAD, EZDXF, WIN32COM, PYAUTOGUI)
-    REQUIRES_DWG = (PYAUTOGUI, WIN32COM)
+    PACKAGES = (WIN32COM, PYAUTOCAD, PYAUTOGUI, EZDXF)
+    REQUIRES_DWG = (WIN32COM, PYAUTOGUI)
     REQUIRES_DXF = (EZDXF,)
 
     def __init__(self, master=None):
@@ -346,7 +311,8 @@ class Application(tk.Frame):
             # Running in a normal Python process
             return Path(__file__).parent.resolve()        
 
-    # >---------- HEADING ----------< #
+
+    # >·········· HEADING ··········< #
     def create_heading(self):
         """Create widgets for the HEADING section of the GUI."""
         self.frm_heading = ttk.Frame(
@@ -374,7 +340,7 @@ class Application(tk.Frame):
         self.lbl_title.grid(row=1, column=0)
 
 
-    # >---------- SETTINGS ----------< #
+    # >·········· SETTINGS ··········< #
     def create_settings(self):
         """Create widgets for the SETTINGS section of the GUI."""
         self.frm_settings = ttk.Frame(self)
@@ -422,7 +388,7 @@ class Application(tk.Frame):
         # )
 
 
-    # >---------- SOURCE ----------< #
+    # >·········· SOURCE ··········< #
     def create_source(self):
         """Create widgets for the SOURCE section of the GUI."""
         self.frm_source = ttk.Frame(self)
@@ -485,7 +451,7 @@ class Application(tk.Frame):
         self.btn_infolder.config(state="disabled")
 
 
-    # >---------- DESTINATION ----------< #
+    # >·········· DESTINATION ··········< #
     def create_destination(self):
         """Create widgets for the DESTINATION section of the GUI."""
         self.frm_destination = ttk.Frame(self)
@@ -543,7 +509,7 @@ class Application(tk.Frame):
         self.btn_outfolder.config(state="disabled")
 
 
-    # >---------- ACTIONS ----------< #
+    # >·········· ACTIONS ··········< #
     def create_actions(self):
         """Create widgets for the ACTIONS section of the GUI."""
         self.frm_actions = ttk.Frame(self)
@@ -575,7 +541,7 @@ class Application(tk.Frame):
         self.btn_exit.grid(row=0, column=2, padx=20)
 
 
-    # >---------- STATUS BAR ----------< #
+    # >·········· STATUS BAR ··········< #
     def create_status(self):
         """Create widgets for the STATUS section of the GUI."""
         self.lbl_status = ttk.Label(
@@ -591,7 +557,7 @@ class Application(tk.Frame):
         )
 
 
-    # >---------- CALLBACKS ----------< #
+    # >·········· CALLBACKS ··········< #
     def callback_prefix_focusout(self, event):
         """Function invoked when the input focus is moved out
         of a the Prefix entry."""
@@ -725,7 +691,7 @@ class Application(tk.Frame):
         self.do_checks(self.check_outfolder)
 
 
-    # >---------- CHECKS ----------< #
+    # >·········· CHECKS ··········< #
     def check_prefix(self):
         """Check that user has entered a valid prefix.
 
@@ -882,7 +848,7 @@ class Application(tk.Frame):
             self.sv_status.set(message)
 
 
-    # >---------- FACTORIES ----------< #
+    # >·········· FACTORIES ··········< #
     def factory_button(self, master, text, command):
         """Wrapper for creating buttons."""
         return ttk.Button(
@@ -975,17 +941,79 @@ class Application(tk.Frame):
 
 
 
+# >---------- HELPER FUNCTIONS ----------< #
+def shorten_path(long_path, limit=50):
+    """Utility function for limiting the lenght of a given path by
+    replacing the middle parts by elipsis (...).
+
+    Parameters
+    ----------
+    long_path : pathlib.Path
+        Path to be shortened.
+    limit : int (optional, default=50)
+        Maximum length of the shortened path.
+
+    Returns
+    -------
+    The shortened path as a string.
+    """
+    long_string = str(long_path)
+    if len(long_string) <= limit:
+        return long_string
+    parts = long_path.parts
+    head = parts[0] + "..."
+    remaining = limit - len(head)
+    last = parts[-1]
+    if len(last) > remaining:
+        return head + last[-remaining:]
+    else:
+        tail = []
+        for part in parts[:0:-1]:
+            if remaining > len(part):
+                tail.append(part)
+                tail.append(os.sep)
+                remaining -= len(part + os.sep)
+            else:
+                break
+        return head + "".join(tail[::-1])
+
+
 def handle_com_exception(exc):
-    """Handle COMError and com_error."""
-    # By analyzing the tracebacks of `COMError` and `com_error`
-    # exceptions, I figured out this:
-    #           +-----------+-------------+
-    #           | COMError  | com_error   |
-    #    +------+-----------+-------------+
-    #    | arg2 | 'text'    | 'strerror'  |
-    #    | arg3 | 'details' | 'excepinfo' |
-    #    | idx  | 0         | 2           |
-    #    +------+-----------+-------------+
+    """Handle exceptions raised when working with COM objects.
+    
+    Parameters
+    ----------
+    exc : comtypes.COMError | pywintypes.com_error
+        Exception object.
+
+    Two exception types can he handled here: `comtypes.COMError`
+    and `pywintypes.com_error`. They can be instantiated as
+    follows (note that `COMError` only accepts 3 arguments):
+        
+    - exc_com = comtypes.COMError(arg1, arg2, arg3)
+    - exc_win = pywintypes.com_error(arg1, arg2, arg3, arg4)
+
+    The arguments above can be looked up as shown in the table:
+
+    ╔══════════╤════════════════════╤═══════════════════════╗
+    ║ Argument │ comtypes.COMError  │ pywintypes.com_error  ║
+    ╠══════════╪════════════════════╪═══════════════════════╣
+    ║ arg1     │ exc_com.hresult    │ exc_win.hresult       ║
+    ╟──────────┼────────────────────┼───────────────────────╢
+    ║ arg2     │ exc_com.text       │ exc_win.strerror      ║
+    ╟──────────┼────────────────────┼───────────────────────╢
+    ║ arg3     │ exc_com.details    │ exc_win.excepinfo     ║
+    ╟──────────┼────────────────────┼───────────────────────╢
+    ║ arg4     │                    │ exc_win.argerror      ║
+    ╚══════════╧════════════════════╧═══════════════════════╝
+
+    It is important to note that `arg3` is a tuple. To retrieve
+    relevant information about the exception you need to use
+    the appropriate index:
+        
+    - exc_com.details[0]
+    - exc_win.excepinfo[2]
+    """
     if isinstance(exc, COMError):
         arg2, arg3, idx = "text", "details", 0
     elif isinstance(exc, com_error):
