@@ -1,5 +1,6 @@
 """
 Main module for PRELAYN application.
+(PREfix LAYer Names of an AutoCAD drawing=
 
 This module serves as the entry point for the PRELAYN application.
 It handles GUI creation and execution of the core functionality.
@@ -11,7 +12,7 @@ Dependencies:
     - comtypes
     - ezdxf
     - pyautocad
-    - pyautogui
+    - PyAutoGUI
     - pywin32
 
 License:
@@ -149,6 +150,8 @@ class PrefixAdder():
             # Casting `self.outfile` to string is necessary
             typewrite(str(self.outfile))
             pgui.hotkey("alt", "s")
+            # Necessary to overwrite existing file
+            # "s" stands for "Sí", which is Spanish for "Yes"
             pgui.hotkey("alt", "s")
         except:
             raise
@@ -175,40 +178,33 @@ class Application(tk.Frame):
 
         self
         ╔════════════════════════════════════════════════════╗
-     0) ║       frm_heading                                  ║
-        ║       ┌────────────────────────────────────┐       ║
-        ║       │ lbl_acronym                        │       ║
-        ║       ├────────────────────────────────────┤       ║
-        ║       │ lbl_title                          │       ║
-        ║       └────────────────────────────────────┘       ║
-        ╠════════════════════════════════════════════════════╣
-     1) ║       frm_settings                                 ║
+     0) ║       frm_settings                                 ║
         ║       ┌──────────────────┬─────────────────┐       ║
         ║       │ lbl_prefix       │ ent_prefix      │       ║
         ║       ├──────────────────┼─────────────────┤       ║
         ║       │ lbl_package      │ cbx_package     │       ║
         ║       └──────────────────┴─────────────────┘       ║
         ╠════════════════════════════════════════════════════╣
-     2) ║  frm_source                                        ║
+     1) ║  frm_source                                        ║
         ║  ┌───────────────┬───────────────┬──────────────┐  ║
         ║  │ lbl_infile    │ ent_infile    │ btn_infile   │  ║
         ║  ├───────────────┼───────────────┼──────────────┤  ║
         ║  │ lbl_infolder  │ ent_infolder  │ btn_infolder │  ║
         ║  └───────────────┴───────────────┴──────────────┘  ║
         ╠════════════════════════════════════════════════════╣
-     3) ║  frm_destination                                   ║
+     2) ║  frm_destination                                   ║
         ║  ┌───────────────┬───────────────┬──────────────┐  ║
         ║  │ lbl_infile    │ ent_infile    │ btn_infile   │  ║
         ║  ├───────────────┼───────────────┼──────────────┤  ║
         ║  │ lbl_infolder  │ ent_infolder  │ btn_infolder │  ║
         ║  └───────────────┴───────────────┴──────────────┘  ║
         ╠════════════════════════════════════════════════════╣
-     4) ║        frm_actions                                 ║
+     3) ║        frm_actions                                 ║
         ║        ┌───────────┬───────────┬───────────┐       ║
         ║        │ btn_run   │ btn_help  │ btn_exit  │       ║
         ║        └───────────┴───────────┴───────────┘       ║
         ╠════════════════════════════════════════════════════╣
-     5) ║  ┌──────────────────────────────────────────────┐  ║
+     4) ║  ┌──────────────────────────────────────────────┐  ║
         ║  │ lbl_status                                   │  ║
         ║  └──────────────────────────────────────────────┘  ║
         ╚════════════════════════════════════════════════════╝
@@ -226,12 +222,11 @@ class Application(tk.Frame):
     BUTTON_WIDTH = 9
     PADDING = 5
 
-    ROW_HEADING = 0
-    ROW_SETTINGS = 1
-    ROW_SOURCE = 2
-    ROW_DESTINATION = 3
-    ROW_ACTIONS = 4
-    ROW_STATUS = 5
+    ROW_SETTINGS = 0
+    ROW_SOURCE = 1
+    ROW_DESTINATION = 2
+    ROW_ACTIONS = 3
+    ROW_STATUS = 4
 
     ILLEGAL = set("<>\\/\":;*?|,=`")
     
@@ -280,11 +275,11 @@ class Application(tk.Frame):
         self.sv_outfolder = tk.StringVar(value=short_outfolder)
         self.sv_status = tk.StringVar(value=self.NO_ERROR)
 
-        self.master.title(Path(__file__).name)
+        self.master.title(Path(__file__).stem)
         icon_path = self.base_folder.joinpath("python-icon-multisize.ico")
         self.master.wm_iconbitmap(icon_path)
 
-        self.create_heading()
+        #self.create_heading()
         self.create_settings()
         self.create_source()
         self.create_destination()
@@ -310,34 +305,6 @@ class Application(tk.Frame):
         else:
             # Running in a normal Python process
             return Path(__file__).parent.resolve()        
-
-
-    # >·········· HEADING ··········< #
-    def create_heading(self):
-        """Create widgets for the HEADING section of the GUI."""
-        self.frm_heading = ttk.Frame(
-            self,
-            relief=tk.RIDGE,
-            borderwidth=10,
-        )
-        self.frm_heading.grid(
-            row=self.ROW_HEADING,
-            padx=self.PADDING,
-            pady=self.PADDING,
-        )
-
-        self.lbl_acronym = ttk.Label(self.frm_heading, text="PRELAYN")
-        acronym_font = (self.HEADING_FONT, self.HUGE_FONTSIZE)
-        self.lbl_acronym.config(font=acronym_font)
-        self.lbl_acronym.grid(row=0, column=0)
-
-        self.lbl_title = ttk.Label(
-            self.frm_heading,
-            text="PREfix LAyer Names of an AutoCAD drawing",
-        )
-        title_font = (self.HEADING_FONT, self.LARGE_FONTSIZE)
-        self.lbl_title.config(font=title_font)
-        self.lbl_title.grid(row=1, column=0)
 
 
     # >·········· SETTINGS ··········< #
@@ -707,7 +674,7 @@ class Application(tk.Frame):
         if not prefix:
             raise PrefixNotSpecified("Prefix cannot be empty")
         if set(prefix).intersection(self.ILLEGAL):
-            raise PrefixNotValid(f"Please enter a valid prefix")
+            raise PrefixNotValid("Please enter a valid prefix")
 
 
     def check_package(self):
@@ -754,7 +721,7 @@ class Application(tk.Frame):
         FileNotFoundError.
         """
         if not self.outfolder.is_dir():
-            raise FileNotFoundEror("Output folder not found")
+            raise FileNotFoundError("Output folder not found")
 
 
     def is_extension_compatible(self, extension):
@@ -816,7 +783,6 @@ class Application(tk.Frame):
         ------
         FileNotSpecified, FileNotFoundError or ExtensionNotCompatible.
         """
-        folder = self.outfolder
         filename = self.sv_outfile.get()
         if not filename:
             raise FileNotSpecified("Please specify the output file")
@@ -906,11 +872,11 @@ class Application(tk.Frame):
             info = handle_com_exception(exc)
             #display_exception_data(exc)
 
-            mbox = messagebox.showerror(
+            _ = messagebox.showerror(
                 master=self,
                 title=exc.__class__.__name__,
                 message=traceback.format_exc(),
-                detail='Please check open files in AutoCAD and try again',
+                detail="Please check open files in AutoCAD and try again",
             )
 
         except Exception as exc:
@@ -980,7 +946,7 @@ def shorten_path(long_path, limit=50):
 
 def handle_com_exception(exc):
     """Handle exceptions raised when working with COM objects.
-    
+
     Parameters
     ----------
     exc : comtypes.COMError | pywintypes.com_error
@@ -1043,7 +1009,7 @@ def display_exception_data(exc):
     tb = exc.__traceback__
     print("========== dir(exc.__traceback__) ==========")
     for attr in dir(tb):
-        print(f"{attr}: {getattr(tb, attr, "???")}")
+        print(f"{attr}: {getattr(tb, attr, '???')}")
     excname = exc.__class__.__name__
     print(f"vvvvvvvvvv handle_exception({excname}) vvvvvvvvvv")
     for key, value in (exc.__dict__.items()):
