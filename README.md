@@ -42,6 +42,27 @@ After that, a graphical user interface will pop up, boasting a help button that 
 
 <img src="./imgs/gui.JPG" alt="GUI" width="auto">
 
+## Distro
+You can create a standalone executable through `PyInstaller`:
+```console
+(myvenv) C:\Users\Me\prelayn>pip install pyinstaller
+(myvenv) C:\Users\Me\prelayn>cd src
+(myvenv) C:\Users\Me\prelayn\src>pyinstaller prelayn.py ^
+    --onefile ^
+    --windowed ^
+    --add-data help.html:. ^
+    --add-data python-icon-multisize.ico:. ^
+    --distpath ../dist ^
+    --workpath ../build
+```
+
+The program can be run from the console:
+```console
+(myvenv) C:\Users\Me\prelayn\src>..\dist\prelayn.exe
+```
+
+Or alternatively you can double-click on the file icon.
+
 ## Platform support
 
 The project supports the following operating systems:
