@@ -46,22 +46,22 @@ from win32com.client.dynamic import Dispatch
 
 
 # >---------- EXCEPTIONS ----------< #
-class PrefixNotSpecified(ValueError):
+class PrefixNotSpecifiedError(ValueError):
     """User did not enter a prefix."""
 
-class PrefixNotValid(ValueError):
+class IllegalPrefixError(ValueError):
     """Prefix contains illegal character(s)."""
 
-class FileNotSpecified(ValueError):
+class FileNotSpecifiedError(ValueError):
     """File not specified."""
 
-class ExtensionNotCompatible(ValueError):
+class ExtensionNotCompatibleError(ValueError):
     """File extension not compatible with selected Python package."""
 
-class NoPythonPackageSelected(ValueError):
+class PackageNotSpecifiedError(ValueError):
     """Python package not specified."""
 
-class UnknownPythonPackage(ValueError):
+class UnknownPackageError(ValueError):
     """Unknown Python package."""
 
 
@@ -98,7 +98,7 @@ class PrefixAdder():
         try:
             func = getattr(self, f"add_prefix_{self.package}")
         except AttributeError:
-            raise UnknownPythonPackage("Unknown Python package")
+            raise UnknownPackageError("Unknown Python package")
         func()
     
     def add_prefix_win32com(self):
@@ -210,7 +210,6 @@ class Application(tk.Frame):
         ╚════════════════════════════════════════════════════╝
 
     """
-
     FONTSIZE = 10
     HUGE_FONTSIZE = 16
     LARGE_FONTSIZE = 13
@@ -527,11 +526,13 @@ class Application(tk.Frame):
     # >·········· CALLBACKS ··········< #
     def callback_prefix_focusout(self, event):
         """Function invoked when the input focus is moved out
-        of a the Prefix entry."""
+        of the prefix Entry widget."""
         self.do_checks(self.check_prefix)
 
 
     def callback_package_selected(self, event):
+        """Function invoked when an option from the package
+        Combobox widget has been selected."""
         package = self.cbox_package.get()
         new_state = "disabled" if package == self.PYAUTOCAD else "normal"
         self.ent_infile.config(state=new_state)
@@ -544,14 +545,20 @@ class Application(tk.Frame):
 
 
     def callback_package_focusout(self, event):
+        """Function invoked when the input focus is moved out
+        of the package Combobox widget."""
         self.do_checks(self.check_package)
 
 
     def callback_infile_focusout(self, event):
+        """Function invoked when the input focus is moved out
+        of the infile Entry widget."""
         self.do_checks(self.check_infile)
 
 
     def callback_outfile_focusout(self, event):
+        """Function invoked when the input focus is moved out
+        of the outfile Entry widget."""
         self.do_checks(self.check_outfile)
 
 
@@ -668,13 +675,13 @@ class Application(tk.Frame):
 
         Raises
         ------
-        PrefixNotSpecified or PrefixNotValid.
+        PrefixNotSpecifiedError or IllegalPrefixError.
         """
         prefix = self.sv_prefix.get()
         if not prefix:
-            raise PrefixNotSpecified("Prefix cannot be empty")
+            raise PrefixNotSpecifiedError("Prefix cannot be empty")
         if set(prefix).intersection(self.ILLEGAL):
-            raise PrefixNotValid("Please enter a valid prefix")
+            raise IllegalPrefixError("Please enter a valid prefix")
 
 
     def check_package(self):
@@ -687,11 +694,11 @@ class Application(tk.Frame):
 
         Raises
         ------
-        NoPythonPackageSelected.
+        PackageNotSpecifiedError.
         """
         package = self.cbox_package.get()
         if not package:
-            raise NoPythonPackageSelected("Please select a Python package")
+            raise PackageNotSpecifiedError("Please select a Python package")
 
 
     def check_infolder(self):
@@ -754,18 +761,19 @@ class Application(tk.Frame):
 
         Raises
         ------
-        FileNotSpecified, FileNotFoundError or ExtensionNotCompatible.
+        FileNotSpecifiedError, FileNotFoundError or
+        ExtensionNotCompatibleError.
         """
         folder = self.infolder
         filename = self.sv_infile.get()
         if not filename:
-            raise FileNotSpecified("Please specify the input file")
+            raise FileNotSpecifiedError("Please specify the input file")
         file_path = Path(folder).joinpath(filename)
         if not file_path.is_file():
             raise FileNotFoundError("Input file not found")
         suffix = file_path.suffix.casefold()
         if not self.is_extension_compatible(suffix):
-            raise ExtensionNotCompatible(
+            raise ExtensionNotCompatibleError(
                 "Input file extension not compatible "
                 "with selected Python package"
             )
@@ -781,14 +789,14 @@ class Application(tk.Frame):
 
         Raises
         ------
-        FileNotSpecified, FileNotFoundError or ExtensionNotCompatible.
+        FileNotSpecifiedError, FileNotFoundError or ExtensionNotCompatibleError.
         """
         filename = self.sv_outfile.get()
         if not filename:
-            raise FileNotSpecified("Please specify the output file")
+            raise FileNotSpecifiedError("Please specify the output file")
         suffix = Path(filename).suffix.casefold()
         if not self.is_extension_compatible(suffix):
-            raise ExtensionNotCompatible(
+            raise ExtensionNotCompatibleError(
                 "Output file extension not compatible "
                 "with selected Python package"
             )
