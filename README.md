@@ -18,7 +18,7 @@ C:\Users\Me>git clone https://github.com/tonechas/prelayn.git
 
 2. Create a virtual environment:
 ```console
-C:\Users\Me>python -m venv path\to\venvs\directory\myvenv python=3.12
+C:\Users\Me>python -m venv path\to\venvs\directory\myvenv python=3.12.0
 ```
 
 3. Activate the virtual environment:
@@ -28,25 +28,24 @@ C:\Users\Me>path\to\venvs\directory\myvenv\Scripts\activate
 
 4. Install the dependencies:
 ```console
-(myvenv) C:\Users\Me>cd prelayn
-(myvenv) C:\Users\Me\prelayn>pip install -r requirements.txt
+(myvenv) C:\Users\Me>pip install -r requirements.txt
 ```
 
 ## Usage
-To run the application, execute the following command:
+To run the application, execute the following commands:
 ```console
-(myvenv) C:\Users\Me\prelayn>python src\prelayn.py
+(myvenv) C:\Users\Me>cd prelayn\src
+(myvenv) C:\Users\Me\prelayn\src>python prelayn.py
 ```
 
-After that, a graphical user interface will pop up, boasting a help button that makes the program easy to use.
+After that, a graphical user interface will pop up, featuring a help button that makes the program easy to use.
 
 <img src="./imgs/gui.JPG" alt="GUI" width="auto">
 
 ## Distro
 You can create a standalone executable through `PyInstaller`:
 ```console
-(myvenv) C:\Users\Me\prelayn>pip install pyinstaller
-(myvenv) C:\Users\Me\prelayn>cd src
+(myvenv) C:\Users\Me\prelayn\src>pip install pyinstaller
 (myvenv) C:\Users\Me\prelayn\src>pyinstaller prelayn.py ^
     --onefile ^
     --windowed ^
@@ -58,7 +57,8 @@ You can create a standalone executable through `PyInstaller`:
 
 The program can be run from the console:
 ```console
-(myvenv) C:\Users\Me\prelayn\src>..\dist\prelayn.exe
+(myvenv) C:\Users\Me\prelayn\src>cd ..\dist
+(myvenv) C:\Users\Me\prelayn\dist>prelayn.exe
 ```
 
 Or alternatively you can double-click on the file icon.
