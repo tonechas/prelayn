@@ -1,6 +1,6 @@
 """
 Main module for PRELAYN application.
-(PREfix LAYer Names of an AutoCAD drawing=
+(PREfix LAYer Names of an AutoCAD drawings)
 
 This module serves as the entry point for the PRELAYN application.
 It handles GUI creation and execution of the core functionality.
@@ -18,11 +18,9 @@ Dependencies:
 License:
     GPL-3.0 license - See LICENSE for more information.
 
-Created on: February 5, 2025
-Version: 1.0.0
+Repository: https://github.com/tonechas/prelayn
 
 Author: Antonio Fernández
-Email: antfdez@uvigo.es
 """
 
 import os
@@ -74,6 +72,7 @@ class PrefixAdder():
     # `LAYER_NAMES` must be hardcoded for `add_prefix_pyautogui` to work
     LAYER_NAMES = ["Layer1", "Layer2", "Layer3", "Layer4"]
 
+
     def __init__(self, prefix, package, infile, outfile):
         """Initialize instance.
 
@@ -93,6 +92,7 @@ class PrefixAdder():
         self.infile = infile
         self.outfile = outfile
 
+
     def __call__(self):
         """Perform the prefixing task through `self.package`."""
         try:
@@ -101,6 +101,7 @@ class PrefixAdder():
             raise UnknownPackageError("Unknown Python package")
         func()
     
+
     def add_prefix_win32com(self):
         """`win32com`-based implementation."""
         acad = Dispatch("AutoCAD.Application")
@@ -113,6 +114,7 @@ class PrefixAdder():
                 layer.Name = new_name
         doc.SaveAs(self.outfile)
 
+
     def add_prefix_pyautocad(self):
         """`pyautocad`-based implementation."""
         acad = Autocad(create_if_not_exists=True)
@@ -121,6 +123,7 @@ class PrefixAdder():
             if name not in self.RESERVED:
                 new_name = self.prefix + name
                 layer.Name = new_name
+
 
     def add_prefix_pyautogui(self):
         """`pyautogui`-based implementation."""
@@ -137,24 +140,22 @@ class PrefixAdder():
         # "The process cannot access the file
         # because it is being used by another process."
         # In contrast, `os.startfile()` works fine even if the file is open.
-        try:
-            os.startfile(f"{self.infile}")
-            time.sleep(3)
-            for name in self.LAYER_NAMES:
-                typewrite("-LAYER")
-                typewrite("Rename")
-                typewrite(name)
-                typewrite(self.prefix + name)
-                pgui.hotkey("escape")
-            typewrite("SAVEAS")
-            # Casting `self.outfile` to string is necessary
-            typewrite(str(self.outfile))
-            pgui.hotkey("alt", "s")
-            # Necessary to overwrite existing file
-            # "s" stands for "Sí", which is Spanish for "Yes"
-            pgui.hotkey("alt", "s")
-        except:
-            raise
+        os.startfile(f"{self.infile}")
+        time.sleep(3)
+        for name in self.LAYER_NAMES:
+            typewrite("-LAYER")
+            typewrite("Rename")
+            typewrite(name)
+            typewrite(self.prefix + name)
+            pgui.hotkey("escape")
+        typewrite("SAVEAS")
+        # Casting `self.outfile` to string is necessary
+        typewrite(str(self.outfile))
+        pgui.hotkey("alt", "s")
+        # Necessary to overwrite existing file
+        # "s" stands for "Sí", which is Spanish for "Yes"
+        pgui.hotkey("alt", "s")
+
 
     def add_prefix_ezdxf(self):
         """`ezdxf`-based implementation."""
@@ -182,7 +183,7 @@ class Application(tk.Frame):
         ║       ┌──────────────────┬─────────────────┐       ║
         ║       │ lbl_prefix       │ ent_prefix      │       ║
         ║       ├──────────────────┼─────────────────┤       ║
-        ║       │ lbl_package      │ cbx_package     │       ║
+        ║       │ lbl_package      │ cbox_package    │       ║
         ║       └──────────────────┴─────────────────┘       ║
         ╠════════════════════════════════════════════════════╣
      1) ║  frm_source                                        ║
@@ -215,9 +216,9 @@ class Application(tk.Frame):
     LARGE_FONTSIZE = 13
     HEADING_FONT = "Courier"
 
-    NUM_CHARS_SMALL = 16
-    NUM_CHARS_MEDIUM = 30
     NUM_CHARS_LARGE = 50
+    NUM_CHARS_MEDIUM = 30
+    NUM_CHARS_SMALL = 16
     BUTTON_WIDTH = 9
     PADDING = 5
 
@@ -278,7 +279,6 @@ class Application(tk.Frame):
         icon_path = self.base_folder.joinpath("python-icon-multisize.ico")
         self.master.wm_iconbitmap(icon_path)
 
-        #self.create_heading()
         self.create_settings()
         self.create_source()
         self.create_destination()
@@ -334,7 +334,9 @@ class Application(tk.Frame):
         )
 
         self.lbl_package = self.factory_label(
-            self.frm_settings, text="Python package")
+            self.frm_settings,
+            text="Python package",
+        )
         self.lbl_package.grid(row=1, column=0)
 
         self.cbox_package = ttk.Combobox(
@@ -434,7 +436,8 @@ class Application(tk.Frame):
         self.lbl_outfile.grid(row=0, column=0)
 
         self.ent_outfile = ttk.Entry(
-            self.frm_destination, textvariable=self.sv_outfile,
+            self.frm_destination,
+            textvariable=self.sv_outfile,
             width=self.NUM_CHARS_LARGE,
         )
         self.ent_outfile.grid(row=0, column=1, sticky="EW")
@@ -526,13 +529,13 @@ class Application(tk.Frame):
     # >·········· CALLBACKS ··········< #
     def callback_prefix_focusout(self, event):
         """Function invoked when the input focus is moved out
-        of the prefix Entry widget."""
+        of the prefix `Entry` widget."""
         self.do_checks(self.check_prefix)
 
 
     def callback_package_selected(self, event):
         """Function invoked when an option from the package
-        Combobox widget has been selected."""
+        `Combobox` widget has been selected."""
         package = self.cbox_package.get()
         new_state = "disabled" if package == self.PYAUTOCAD else "normal"
         self.ent_infile.config(state=new_state)
@@ -546,19 +549,19 @@ class Application(tk.Frame):
 
     def callback_package_focusout(self, event):
         """Function invoked when the input focus is moved out
-        of the package Combobox widget."""
+        of the package `Combobox` widget."""
         self.do_checks(self.check_package)
 
 
     def callback_infile_focusout(self, event):
         """Function invoked when the input focus is moved out
-        of the infile Entry widget."""
+        of the infile `Entry` widget."""
         self.do_checks(self.check_infile)
 
 
     def callback_outfile_focusout(self, event):
         """Function invoked when the input focus is moved out
-        of the outfile Entry widget."""
+        of the outfile `Entry` widget."""
         self.do_checks(self.check_outfile)
 
 
@@ -671,11 +674,11 @@ class Application(tk.Frame):
 
         Returns
         -------
-        None.
+        `None`.
 
         Raises
         ------
-        PrefixNotSpecifiedError or IllegalPrefixError.
+        `PrefixNotSpecifiedError` or `IllegalPrefixError`.
         """
         prefix = self.sv_prefix.get()
         if not prefix:
@@ -690,11 +693,11 @@ class Application(tk.Frame):
 
         Returns
         -------
-        None.
+        `None`.
 
         Raises
         ------
-        PackageNotSpecifiedError.
+        `PackageNotSpecifiedError`.
         """
         package = self.cbox_package.get()
         if not package:
@@ -706,11 +709,11 @@ class Application(tk.Frame):
 
         Returns
         -------
-        None.
+        `None`.
 
         Raises
         ------
-        FileNotFoundError.
+        `FileNotFoundError`.
         """
         if not self.infolder.is_dir():
             raise FileNotFoundError("Input folder not found")
@@ -721,11 +724,11 @@ class Application(tk.Frame):
 
         Returns
         -------
-        None.
+        `None`.
 
         Raises
         ------
-        FileNotFoundError.
+        `FileNotFoundError`.
         """
         if not self.outfolder.is_dir():
             raise FileNotFoundError("Output folder not found")
@@ -742,8 +745,8 @@ class Application(tk.Frame):
 
         Returns
         -------
-        True if file extension is compatible with package,
-        False otherwise.
+        `True` if file extension is compatible with package,
+        `False` otherwise.
         """
         package = self.cbox_package.get()
         dwg_fail = (extension != self.DWG) and (package in self.REQUIRES_DWG)
@@ -757,12 +760,12 @@ class Application(tk.Frame):
 
         Returns
         -------
-        None.
+        `None`.
 
         Raises
         ------
-        FileNotSpecifiedError, FileNotFoundError or
-        ExtensionNotCompatibleError.
+        `FileNotSpecifiedError`, `FileNotFoundError` or
+        `ExtensionNotCompatibleError`.
         """
         folder = self.infolder
         filename = self.sv_infile.get()
@@ -785,11 +788,12 @@ class Application(tk.Frame):
 
         Returns
         -------
-        None.
+        `None`.
 
         Raises
         ------
-        FileNotSpecifiedError, FileNotFoundError or ExtensionNotCompatibleError.
+        `FileNotSpecifiedError`, `FileNotFoundError` or
+        `ExtensionNotCompatibleError`.
         """
         filename = self.sv_outfile.get()
         if not filename:
@@ -832,6 +836,7 @@ class Application(tk.Frame):
             command=command,
         )
 
+
     def factory_label(self, master, text):
         """Wrapper for creating labels."""
         font = tkfont.nametofont("TkDefaultFont")
@@ -847,7 +852,12 @@ class Application(tk.Frame):
 
 
     def run(self):
-        """Perform prefixing task."""
+        """Perform prefixing task.
+
+        Returns
+        -------
+        `None`.
+        """
         self.do_checks(
             self.check_prefix,
             self.check_package,
@@ -881,14 +891,15 @@ class Application(tk.Frame):
             #display_exception_data(exc)
 
             _ = messagebox.showerror(
-                master=self,
-                title=exc.__class__.__name__,
-                message=traceback.format_exc(),
-                detail="Please check open files in AutoCAD and try again",
+                    master=self,
+                    title=exc.__class__.__name__,
+                    message=traceback.format_exc(),
+                    detail="Please check open files in AutoCAD and try again",
             )
 
         except Exception as exc:
             info = f"{exc.__class__.__name__} >>> {exc.__doc__}"
+            # Uncomment the following line for debugging.
             #display_exception_data(exc)
 
         else:
@@ -929,17 +940,18 @@ def shorten_path(long_path, limit=50):
 
     Returns
     -------
-    The shortened path as a string.
+    short_string : str
+        The shortened path as a string.
     """
     long_string = str(long_path)
     if len(long_string) <= limit:
-        return long_string
+        short_string = long_string
     parts = long_path.parts
     head = parts[0] + "..."
     remaining = limit - len(head)
     last = parts[-1]
     if len(last) > remaining:
-        return head + last[-remaining:]
+        short_string = head + last[-remaining:]
     else:
         tail = []
         for part in parts[:0:-1]:
@@ -949,7 +961,8 @@ def shorten_path(long_path, limit=50):
                 remaining -= len(part + os.sep)
             else:
                 break
-        return head + "".join(tail[::-1])
+        short_string = head + "".join(tail[::-1])
+    return short_string
 
 
 def handle_com_exception(exc):
@@ -962,7 +975,9 @@ def handle_com_exception(exc):
 
     Two exception types can he handled here: `comtypes.COMError`
     and `pywintypes.com_error`. They can be instantiated as
-    follows (note that `COMError` only accepts 3 arguments):
+    follows (note that `COMError` takes exactly 3 arguments, whereas
+    `com_error` can be instantiated with a variable number of
+    arguments, ranging from 0 to more than 5):
         
     - exc_com = comtypes.COMError(arg1, arg2, arg3)
     - exc_win = pywintypes.com_error(arg1, arg2, arg3, arg4)
@@ -985,8 +1000,13 @@ def handle_com_exception(exc):
     relevant information about the exception you need to use
     the appropriate index:
         
-    - exc_com.details[0]
-    - exc_win.excepinfo[2]
+    - `exc_com.details[0]`
+    - `exc_win.excepinfo[2]`
+
+    Returns
+    -------
+    info : str
+        Information to be displayed on the status label.
     """
     if isinstance(exc, COMError):
         arg2, arg3, idx = "text", "details", 0
@@ -997,6 +1017,7 @@ def handle_com_exception(exc):
     if hasattr(exc, arg3) and exc.__dict__[arg3] is not None:
         try:
             seq = exc.__dict__[arg3]
+            # Useful for debugging:
             #for index, item in enumerate(seq):
             #    print(f"  $ {name}.{arg3}[{index}]: {item}")
             info = f"{name} >>> {seq[idx]}"
@@ -1013,7 +1034,17 @@ def handle_com_exception(exc):
 
 
 def display_exception_data(exc):
-    """Utility function for debugging."""
+    """Utility function for debugging.
+
+    Parameters
+    ----------
+    exc : Exception
+        Exception object.
+
+    Returns
+    -------
+    `None`.
+    """
     tb = exc.__traceback__
     print("========== dir(exc.__traceback__) ==========")
     for attr in dir(tb):
