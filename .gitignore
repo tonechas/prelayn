@@ -1,3 +1,5 @@
 prelayn.spec
-drawings/*.bak
 build/
+drawings/*
+!drawings/in.dwg
+!drawings/in.dxf
