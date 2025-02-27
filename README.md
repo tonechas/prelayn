@@ -28,13 +28,14 @@ C:\Users\Me>path\to\venvs\directory\myvenv\Scripts\activate
 
 4. Install the dependencies:
 ```console
-(myvenv) C:\Users\Me>pip install -r requirements.txt
+(myvenv) C:\Users\Me>cd prelayn
+(myvenv) C:\Users\Me\prelayn>pip install -r requirements.txt
 ```
 
 ## Usage
 To run the application, execute the following commands:
 ```console
-(myvenv) C:\Users\Me>cd prelayn\src
+(myvenv) C:\Users\Me\prelayn>cd src
 (myvenv) C:\Users\Me\prelayn\src>python prelayn.py
 ```
 
