@@ -242,6 +242,8 @@ class Application(tk.Frame):
     REQUIRES_DWG = (WIN32COM, PYAUTOGUI)
     REQUIRES_DXF = (EZDXF,)
 
+    PATH_FROM_EMPTY_SEGMENT = Path("")
+
     def __init__(self, master=None):
         """Initialize GUI.
 
@@ -578,7 +580,8 @@ class Application(tk.Frame):
         Returns
         -------
         file_path : pathlib.Path
-            Path of the selected file.
+            Path of the selected file. If the user clicks on the
+            Cancel button, the returned value is `Path("")`.
         """
         if not initialdir or not initialdir.is_dir():
             initialdir = self.cwd
@@ -605,22 +608,24 @@ class Application(tk.Frame):
     def callback_select_infile(self):
         """Select input file and check that it is valid."""
         file_path = self.get_file(self.infolder,"Select input file")
-        parent_folder = file_path.parent
-        filename = file_path.name
-        self.sv_infile.set(filename)
-        self.infolder = parent_folder
-        self.sv_infolder.set(shorten_path(parent_folder))
+        if file_path != PATH_FROM_EMPTY_SEGMENT:
+            parent_folder = file_path.parent
+            filename = file_path.name
+            self.sv_infile.set(filename)
+            self.infolder = parent_folder
+            self.sv_infolder.set(shorten_path(parent_folder))
         self.do_checks(self.check_infile)
 
 
     def callback_select_outfile(self):
         """Select output file and check that it is valid."""
         file_path = self.get_file(self.infolder,"Select output file")
-        parent_folder = file_path.parent
-        filename = file_path.name
-        self.sv_outfile.set(filename)
-        self.outfolder = parent_folder
-        self.sv_outfolder.set(shorten_path(parent_folder))
+        if file_path != PATH_FROM_EMPTY_SEGMENT:
+            parent_folder = file_path.parent
+            filename = file_path.name
+            self.sv_outfile.set(filename)
+            self.outfolder = parent_folder
+            self.sv_outfolder.set(shorten_path(parent_folder))
         self.do_checks(self.check_outfile)
 
 
@@ -637,7 +642,8 @@ class Application(tk.Frame):
         Returns
         -------
         dir_path : pathlib.Path
-            Path of the selected directory.
+            Path of the selected directory. If the user clicks on the
+            Cancel button, the returned value is `Path("")`.
         """
         if not initialdir or not initialdir.is_dir():
             initialdir = self.cwd
@@ -655,16 +661,18 @@ class Application(tk.Frame):
     def callback_select_infolder(self):
         """Select input folder and check if it exists."""
         dir_path = self.get_folder(self.infolder, "Select input folder")
-        self.infolder = dir_path
-        self.sv_infolder.set(shorten_path(dir_path))
+        if dir_path != PATH_FROM_EMPTY_SEGMENT:
+            self.infolder = dir_path
+            self.sv_infolder.set(shorten_path(dir_path))
         self.do_checks(self.check_infolder)
 
 
     def callback_select_outfolder(self):
         """Select output folder and check if it exists."""
         dir_path = self.get_folder(self.outfolder, "Select output folder")
-        self.outfolder = dir_path
-        self.sv_outfolder.set(shorten_path(dir_path))
+        if dir_path != PATH_FROM_EMPTY_SEGMENT:
+            self.outfolder = dir_path
+            self.sv_outfolder.set(shorten_path(dir_path))
         self.do_checks(self.check_outfolder)
 
 
