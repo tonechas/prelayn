@@ -1,6 +1,6 @@
 """
 Main module for PRELAYN application.
-(PREfix LAYer Names of an AutoCAD drawings)
+(PREfix LAYer Names of AutoCAD drawings)
 
 This module serves as the entry point for the PRELAYN application.
 It handles GUI creation and execution of the core functionality.
@@ -23,6 +23,7 @@ Repository: https://github.com/tonechas/prelayn
 Author: Antonio Fernández
 """
 
+import doctest
 import os
 from pathlib import Path
 import sys
@@ -70,6 +71,8 @@ class PrefixAdder():
     LAYER_0 = "0"
     CLAYER = "$CLAYER"
     # `LAYER_NAMES` must be hardcoded for `add_prefix_pyautogui` to work
+    # In the provided drawing file examples (`in.dwg` and `in.dxf`)
+    # the layer names are as follows ("0" and "Defpoints" not included):
     LAYER_NAMES = ["Layer1", "Layer2", "Layer3", "Layer4"]
 
 
@@ -242,7 +245,10 @@ class Application(tk.Frame):
     REQUIRES_DWG = (WIN32COM, PYAUTOGUI)
     REQUIRES_DXF = (EZDXF,)
 
+    # Value returned by `get_file()` or `get_folder()`
+    # on filedialog cancel event.
     PATH_FROM_EMPTY_SEGMENT = Path("")
+
 
     def __init__(self, master=None):
         """Initialize GUI.
@@ -300,7 +306,7 @@ class Application(tk.Frame):
         - The folder that contains the script if the program
           is run in a normal Python process.
         """
-        if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+        if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
             # Running in a PyInstaller bundle
             return Path(sys._MEIPASS)
         else:
@@ -608,7 +614,7 @@ class Application(tk.Frame):
     def callback_select_infile(self):
         """Select input file and check that it is valid."""
         file_path = self.get_file(self.infolder,"Select input file")
-        if file_path != PATH_FROM_EMPTY_SEGMENT:
+        if file_path != self.PATH_FROM_EMPTY_SEGMENT:
             parent_folder = file_path.parent
             filename = file_path.name
             self.sv_infile.set(filename)
@@ -620,7 +626,7 @@ class Application(tk.Frame):
     def callback_select_outfile(self):
         """Select output file and check that it is valid."""
         file_path = self.get_file(self.infolder,"Select output file")
-        if file_path != PATH_FROM_EMPTY_SEGMENT:
+        if file_path != self.PATH_FROM_EMPTY_SEGMENT:
             parent_folder = file_path.parent
             filename = file_path.name
             self.sv_outfile.set(filename)
@@ -661,7 +667,7 @@ class Application(tk.Frame):
     def callback_select_infolder(self):
         """Select input folder and check if it exists."""
         dir_path = self.get_folder(self.infolder, "Select input folder")
-        if dir_path != PATH_FROM_EMPTY_SEGMENT:
+        if dir_path != self.PATH_FROM_EMPTY_SEGMENT:
             self.infolder = dir_path
             self.sv_infolder.set(shorten_path(dir_path))
         self.do_checks(self.check_infolder)
@@ -670,7 +676,7 @@ class Application(tk.Frame):
     def callback_select_outfolder(self):
         """Select output folder and check if it exists."""
         dir_path = self.get_folder(self.outfolder, "Select output folder")
-        if dir_path != PATH_FROM_EMPTY_SEGMENT:
+        if dir_path != self.PATH_FROM_EMPTY_SEGMENT:
             self.outfolder = dir_path
             self.sv_outfolder.set(shorten_path(dir_path))
         self.do_checks(self.check_outfolder)
@@ -749,7 +755,7 @@ class Application(tk.Frame):
         Parameters
         ----------
         extension : str
-            Name of input or output file.
+            Extension of input or output file.
 
         Returns
         -------
@@ -935,42 +941,61 @@ class Application(tk.Frame):
 
 
 # >---------- HELPER FUNCTIONS ----------< #
-def shorten_path(long_path, limit=50):
-    """Utility function for limiting the lenght of a given path by
+def shorten_path(raw_path, limit=50):
+    r"""Utility function for limiting the lenght of a given path by
     replacing the middle parts by elipsis (...).
 
     Parameters
     ----------
-    long_path : pathlib.Path
+    raw_path : pathlib.Path
         Path to be shortened.
     limit : int (optional, default=50)
         Maximum length of the shortened path.
 
     Returns
     -------
-    short_string : str
-        The shortened path as a string.
+    The shortened path as a string.
+
+    Examples
+    --------
+    >>> filepath = Path(r'C:\Users\Me\Folder\Subfolder\file.xyz')
+    >>> len(str(filepath))
+    37
+    >>> for limit in [15, 25, 35, 40]:
+    ...     s = shorten_path(raw_path=filepath, limit=limit)
+    ...     print(s)
+    ...
+    C:\...\file.xyz
+    C:\...\Subfolder\file.xyz
+    C:\...\Me\Folder\Subfolder\file.xyz
+    C:\Users\Me\Folder\Subfolder\file.xyz
+    >>> long_path = Path(r'C:\Users\Me\verylongfilename.xyz')
+    >>> shorten_path(long_path, 14)
+    'C:\\...name.xyz'
     """
-    long_string = str(long_path)
-    if len(long_string) <= limit:
-        short_string = long_string
-    parts = long_path.parts
-    head = parts[0] + "..."
-    remaining = limit - len(head)
-    last = parts[-1]
-    if len(last) > remaining:
-        short_string = head + last[-remaining:]
+    raw_string = str(raw_path)
+    if len(raw_string) <= limit:
+        return raw_string
+
     else:
-        tail = []
-        for part in parts[:0:-1]:
-            if remaining > len(part):
-                tail.append(part)
-                tail.append(os.sep)
-                remaining -= len(part + os.sep)
-            else:
-                break
-        short_string = head + "".join(tail[::-1])
-    return short_string
+        parts = raw_path.parts
+        head = parts[0] + "..."
+        remaining = limit - len(head)
+        last = parts[-1]
+
+        if len(last) > remaining:
+            return head + last[-remaining:]
+
+        else:
+            tail = []
+            for part in parts[:0:-1]:
+                if remaining > len(part):
+                    tail.append(part)
+                    tail.append(os.sep)
+                    remaining -= len(part + os.sep)
+                else:
+                    break
+            return head + "".join(tail[::-1])
 
 
 def handle_com_exception(exc):
@@ -1065,6 +1090,8 @@ def display_exception_data(exc):
 
 
 if __name__ == "__main__":
+    doctest.testmod()
+
     root = tk.Tk()    
     app = Application(master=root)
     app.mainloop()
