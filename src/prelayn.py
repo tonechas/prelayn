@@ -76,7 +76,13 @@ class PrefixAdder():
     LAYER_NAMES = ["Layer1", "Layer2", "Layer3", "Layer4"]
 
 
-    def __init__(self, prefix, package, infile, outfile):
+    def __init__(
+        self,
+        prefix: str,
+        package: str,
+        infile: Path,
+        outfile: Path,
+    ) -> None:
         """Initialize instance.
 
         Parameters
@@ -941,7 +947,10 @@ class Application(tk.Frame):
 
 
 # >---------- HELPER FUNCTIONS ----------< #
-def shorten_path(raw_path, limit=50):
+def shorten_path(
+    raw_path: Path,
+    limit: int = 50,
+) -> None:
     r"""Utility function for limiting the lenght of a given path by
     replacing the middle parts by elipsis (...).
 
@@ -998,7 +1007,9 @@ def shorten_path(raw_path, limit=50):
             return head + "".join(tail[::-1])
 
 
-def handle_com_exception(exc):
+def handle_com_exception(
+    exc: COMError | com_error,
+) -> None:
     """Handle exceptions raised when working with COM objects.
 
     Parameters
@@ -1066,7 +1077,9 @@ def handle_com_exception(exc):
     return info
 
 
-def display_exception_data(exc):
+def display_exception_data(
+    exc: Exception,
+) -> None:
     """Utility function for debugging.
 
     Parameters
