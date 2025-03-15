@@ -105,10 +105,11 @@ class PrefixAdder():
     def __call__(self):
         """Perform the prefixing task through `self.package`."""
         try:
-            func = getattr(self, f"add_prefix_{self.package}")
+            method_name = "add_prefix_" + self.package
+            add_prefix_package = getattr(self, method_name)
         except AttributeError:
             raise UnknownPackageError("Unknown Python package")
-        func()
+        add_prefix_package()
     
 
     def add_prefix_win32com(self):
@@ -137,10 +138,20 @@ class PrefixAdder():
     def add_prefix_pyautogui(self):
         """`pyautogui`-based implementation."""
         def typewrite(keyboard_input, delay=1):
-            """Helper function for typing text in AutoCAD with pyautogui."""
-            pgui.typewrite(keyboard_input)
-            pgui.keyDown("enter")
-            pgui.keyUp("enter")
+            """Helper function for typing text in AutoCAD with pyautogui.
+            
+            Parameters
+            ----------
+            keyboard_input : str
+                Text to type.
+            delay : int | float, optional
+                Delay (in seconds) after pressing the enter key,
+                default is 1.
+            """
+            pgui.typewrite(f"{keyboard_input}\n")
+            # Trailing "\n" is equivalent to the following two calls
+            #pgui.keyDown("enter")
+            #pgui.keyUp("enter")
             time.sleep(delay)
 
         # If the file is already open, the following line:
