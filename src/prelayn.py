@@ -70,7 +70,7 @@ class PrefixAdder():
     RESERVED = ("0", "Defpoints")
     LAYER_0 = "0"
     CLAYER = "$CLAYER"
-    # `LAYER_NAMES` must be hardcoded for `add_prefix_pyautogui` to work
+    # `LAYER_NAMES` must be hardcoded for `add_prefix_pyautogui` to work.
     # In the provided drawing file examples (`in.dwg` and `in.dxf`)
     # the layer names are as follows ("0" and "Defpoints" not included):
     LAYER_NAMES = ["Layer1", "Layer2", "Layer3", "Layer4"]
@@ -144,9 +144,8 @@ class PrefixAdder():
             ----------
             keyboard_input : str
                 Text to type.
-            delay : int | float, optional
-                Delay (in seconds) after pressing the enter key,
-                default is 1.
+            delay : int | float (optional, default is 1)
+                Delay (in seconds) after pressing the enter key.
             """
             pgui.typewrite(f"{keyboard_input}\n")
             # Trailing "\n" is equivalent to the following two calls
@@ -180,7 +179,9 @@ class PrefixAdder():
     def add_prefix_ezdxf(self):
         """`ezdxf`-based implementation."""
         doc = ezdxf.readfile(self.infile)
+        # Save current layer name
         clayer_name = doc.header[self.CLAYER]
+        # Make Layer 0 the current layer
         doc.header[self.CLAYER] = self.LAYER_0
         names = [layer.dxf.name for layer in doc.layers]
         for name in names:
@@ -188,6 +189,7 @@ class PrefixAdder():
                 layer = doc.layers.get(name)
                 new_name = self.prefix + name
                 layer.rename(new_name)
+        # Restore the current layer (prefixed)
         doc.header[self.CLAYER] = self.prefix + clayer_name
         doc.saveas(self.outfile)
 
@@ -711,11 +713,16 @@ class Application(tk.Frame):
         ------
         `PrefixNotSpecifiedError` or `IllegalPrefixError`.
         """
+        #print('Checking prefix...')
         prefix = self.sv_prefix.get()
         if not prefix:
+            #print(f'not prefix: {repr(prefix)}')
             raise PrefixNotSpecifiedError("Prefix cannot be empty")
         if set(prefix).intersection(self.ILLEGAL):
+            # !!! Remove illegal prefix
+            #print(f'illegal: {repr(prefix)}')
             raise IllegalPrefixError("Please enter a valid prefix")
+        #print('Prefix is OK')
 
 
     def check_package(self):
@@ -893,6 +900,7 @@ class Application(tk.Frame):
             self.check_prefix,
             self.check_package,
         )
+        _ = input('AFV: ')
         package = self.cbox_package.get()
         if package in (self.REQUIRES_DWG + self.REQUIRES_DXF):
             self.do_checks(
