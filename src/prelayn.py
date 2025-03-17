@@ -250,6 +250,8 @@ class Application(tk.Frame):
     ROW_ACTIONS = 3
     ROW_STATUS = 4
 
+    EMPTY_STRINGVAR = ""
+    NO_ERROR = ""
     ILLEGAL = set("<>\\/\":;*?|,=`")
     
     WIN32COM = "win32com"
@@ -281,8 +283,6 @@ class Application(tk.Frame):
         self.master = master
         self.grid()
 
-        self.NO_ERROR = ""
-
         default_font = tkfont.nametofont("TkDefaultFont")
         default_font.configure(size=self.FONTSIZE)
         self.master.option_add("*Font", default_font)
@@ -290,14 +290,32 @@ class Application(tk.Frame):
         self.cwd = Path.cwd()
         self.base_folder = self.get_base_folder()
 
+        self.valid_input = {
+            'prefix': False,
+            'package': False,
+            'infile': False,
+            'infolder': False,
+            'outfile': False,
+            'outfolder': False,
+        }
+        
+        self.error_message = {
+            'prefix': self.NO_ERROR,
+            'package': self.NO_ERROR,
+            'infile': self.NO_ERROR,
+            'infolder': self.NO_ERROR,
+            'outfile': self.NO_ERROR,
+            'outfolder': self.NO_ERROR,
+        }
+
         self.infolder = self.cwd
         self.outfolder = self.cwd
 
-        self.sv_prefix = tk.StringVar(value="")
-        self.sv_infile = tk.StringVar(value="")
+        self.sv_prefix = tk.StringVar(value=self.EMPTY_STRINGVAR)
+        self.sv_infile = tk.StringVar(value=self.EMPTY_STRINGVAR)
         short_infolder = shorten_path(self.infolder, self.NUM_CHARS_LARGE)
         self.sv_infolder = tk.StringVar(value=short_infolder)
-        self.sv_outfile = tk.StringVar(value="")
+        self.sv_outfile = tk.StringVar(value=self.EMPTY_STRINGVAR)
         short_outfolder = shorten_path(self.outfolder, self.NUM_CHARS_LARGE)
         self.sv_outfolder = tk.StringVar(value=short_outfolder)
         self.sv_status = tk.StringVar(value=self.NO_ERROR)
@@ -313,7 +331,10 @@ class Application(tk.Frame):
         self.create_status()
 
         self.ent_prefix.focus_set()
-        self.master.minsize(self.master.winfo_width(), self.master.winfo_height())
+        self.master.minsize(
+            self.master.winfo_width(),
+            self.master.winfo_height(),
+        )
         self.master.resizable(0, 0)
         self.master.update()
 
@@ -377,10 +398,10 @@ class Application(tk.Frame):
             "<<ComboboxSelected>>",
             self.callback_package_selected,
         )
-        # self.cbox_package.bind(
-        #     "<FocusOut>",
-        #     self.callback_package_focusout,
-        # )
+        self.cbox_package.bind(
+            "<FocusOut>",
+            self.callback_package_focusout,
+        )
 
 
     # >·········· SOURCE ··········< #
@@ -555,9 +576,9 @@ class Application(tk.Frame):
 
     # >·········· CALLBACKS ··········< #
     def callback_prefix_focusout(self, event):
-        """Function invoked when the input focus is moved out
-        of the prefix `Entry` widget."""
-        self.do_checks(self.check_prefix)
+        """Function invoked when the input focus
+        is moved out of the prefix `Entry` widget."""
+        self.do_checks('prefix')
 
 
     def callback_package_selected(self, event):
@@ -566,18 +587,19 @@ class Application(tk.Frame):
         package = self.cbox_package.get()
         new_state = "disabled" if package == self.PYAUTOCAD else "normal"
         self.ent_infile.config(state=new_state)
-        self.ent_outfile.config(state=new_state)
         self.btn_infile.config(state=new_state)
         self.btn_infolder.config(state=new_state)
+        self.ent_outfile.config(state=new_state)
         self.btn_outfile.config(state=new_state)
         self.btn_outfolder.config(state=new_state)
-        self.do_checks(self.check_package)
+        print('SELECTED')
 
 
     def callback_package_focusout(self, event):
         """Function invoked when the input focus is moved out
         of the package `Combobox` widget."""
-        self.do_checks(self.check_package)
+        print('FOCUSOUT')
+        self.do_checks('package')
 
 
     def callback_infile_focusout(self, event):
@@ -707,22 +729,18 @@ class Application(tk.Frame):
 
         Returns
         -------
-        `None`.
-
-        Raises
-        ------
-        `PrefixNotSpecifiedError` or `IllegalPrefixError`.
+        message : str
+            Error message (if any) to be displayed
+            in the status bar.
         """
-        #print('Checking prefix...')
         prefix = self.sv_prefix.get()
         if not prefix:
-            #print(f'not prefix: {repr(prefix)}')
-            raise PrefixNotSpecifiedError("Prefix cannot be empty")
-        if set(prefix).intersection(self.ILLEGAL):
-            # !!! Remove illegal prefix
-            #print(f'illegal: {repr(prefix)}')
-            raise IllegalPrefixError("Please enter a valid prefix")
-        #print('Prefix is OK')
+            message = "Prefix cannot be empty"
+        elif set(prefix).intersection(self.ILLEGAL):
+            message = "Please enter a valid prefix"
+        else:
+            message = self.NO_ERROR
+        return message
 
 
     def check_package(self):
@@ -731,15 +749,19 @@ class Application(tk.Frame):
 
         Returns
         -------
-        `None`.
-
-        Raises
-        ------
-        `PackageNotSpecifiedError`.
+        message : str
+            Error message (if any) to be displayed
+            in the status bar.
         """
+        print('Checking package...')  # !!!
         package = self.cbox_package.get()
         if not package:
-            raise PackageNotSpecifiedError("Please select a Python package")
+            message = "Please select a Python package"
+            print(f'not package: {repr(package)}')  # !!!
+        else:
+            print('Package is OK')  # !!!
+            message = self.NO_ERROR
+        return message
 
 
     def check_infolder(self):
@@ -844,7 +866,7 @@ class Application(tk.Frame):
             )
 
 
-    def do_checks(self, *checks):
+    def do_checks_old(self, *checks):  # !!!
         """Perform a series of checks by calling the passed methods.
 
         Parameters
@@ -862,6 +884,33 @@ class Application(tk.Frame):
             message = self.NO_ERROR
         finally:
             self.sv_status.set(message)
+
+
+    def do_checks(self, *widgets):
+        """Check the values of the passed widgets.
+
+        Parameters
+        ----------
+        widgets : tuple
+            Comma-separated widgets whose values
+            are going to be checked.
+        """
+        for widget in widgets:
+            method_name = "check_" + widget
+            check_widget = getattr(self, method_name)
+            message = check_widget()
+            if message == self.NO_ERROR:
+                self.valid_input[widget] = True
+                self.error_message[widget] = self.NO_ERROR
+            else:
+                self.valid_input[widget] = False
+                self.error_message[widget] = message
+                self.sv_status.set(message)
+                break
+        else:
+            self.sv_status.set(self.NO_ERROR)
+            
+            
 
 
     # >·········· FACTORIES ··········< #
