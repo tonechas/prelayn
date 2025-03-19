@@ -45,21 +45,6 @@ from win32com.client.dynamic import Dispatch
 
 
 # >---------- EXCEPTIONS ----------< #
-class PrefixNotSpecifiedError(ValueError):
-    """User did not enter a prefix."""
-
-class IllegalPrefixError(ValueError):
-    """Prefix contains illegal character(s)."""
-
-class FileNotSpecifiedError(ValueError):
-    """File not specified."""
-
-class ExtensionNotCompatibleError(ValueError):
-    """File extension not compatible with selected Python package."""
-
-class PackageNotSpecifiedError(ValueError):
-    """Python package not specified."""
-
 class UnknownPackageError(ValueError):
     """Unknown Python package."""
 
@@ -592,28 +577,69 @@ class Application(tk.Frame):
         self.ent_outfile.config(state=new_state)
         self.btn_outfile.config(state=new_state)
         self.btn_outfolder.config(state=new_state)
-        print('SELECTED')
 
 
     def callback_package_focusout(self, event):
         """Function invoked when the input focus is moved out
         of the package `Combobox` widget."""
-        print('FOCUSOUT')
         self.do_checks('package')
 
 
     def callback_infile_focusout(self, event):
         """Function invoked when the input focus is moved out
         of the infile `Entry` widget."""
-        self.do_checks(self.check_infile)
+        self.do_checks('infile')
+
+
+    def callback_select_infile(self):
+        """Select input file and check that it is valid."""
+        file_path = self.get_file(self.infolder, "Select input file")
+        if file_path != self.PATH_FROM_EMPTY_SEGMENT:
+            parent_folder = file_path.parent
+            filename = file_path.name
+            self.sv_infile.set(filename)
+            self.infolder = parent_folder
+            self.sv_infolder.set(shorten_path(parent_folder))
+        self.do_checks('infile')
 
 
     def callback_outfile_focusout(self, event):
         """Function invoked when the input focus is moved out
         of the outfile `Entry` widget."""
-        self.do_checks(self.check_outfile)
+        self.do_checks('outfile')
 
 
+    def callback_select_outfile(self):
+        """Select output file and check that it is valid."""
+        file_path = self.get_file(self.infolder, "Select output file")
+        if file_path != self.PATH_FROM_EMPTY_SEGMENT:
+            parent_folder = file_path.parent
+            filename = file_path.name
+            self.sv_outfile.set(filename)
+            self.outfolder = parent_folder
+            self.sv_outfolder.set(shorten_path(parent_folder))
+        self.do_checks('outfile')
+
+
+    def callback_select_infolder(self):
+        """Select input folder and check if it exists."""
+        dir_path = self.get_folder(self.infolder, "Select input folder")
+        if dir_path != self.PATH_FROM_EMPTY_SEGMENT:
+            self.infolder = dir_path
+            self.sv_infolder.set(shorten_path(dir_path))
+        self.do_checks('infolder')
+
+
+    def callback_select_outfolder(self):
+        """Select output folder and check if it exists."""
+        dir_path = self.get_folder(self.outfolder, "Select output folder")
+        if dir_path != self.PATH_FROM_EMPTY_SEGMENT:
+            self.outfolder = dir_path
+            self.sv_outfolder.set(shorten_path(dir_path))
+        self.do_checks('outfolder')
+
+
+    # >·········· FILE DIALOGS ··········< #
     def get_file(self, initialdir, title):
         """Select a file through a dialog box.
 
@@ -652,30 +678,6 @@ class Application(tk.Frame):
         return file_path
 
 
-    def callback_select_infile(self):
-        """Select input file and check that it is valid."""
-        file_path = self.get_file(self.infolder,"Select input file")
-        if file_path != self.PATH_FROM_EMPTY_SEGMENT:
-            parent_folder = file_path.parent
-            filename = file_path.name
-            self.sv_infile.set(filename)
-            self.infolder = parent_folder
-            self.sv_infolder.set(shorten_path(parent_folder))
-        self.do_checks(self.check_infile)
-
-
-    def callback_select_outfile(self):
-        """Select output file and check that it is valid."""
-        file_path = self.get_file(self.infolder,"Select output file")
-        if file_path != self.PATH_FROM_EMPTY_SEGMENT:
-            parent_folder = file_path.parent
-            filename = file_path.name
-            self.sv_outfile.set(filename)
-            self.outfolder = parent_folder
-            self.sv_outfolder.set(shorten_path(parent_folder))
-        self.do_checks(self.check_outfile)
-
-
     def get_folder(self, initialdir, title):
         """Select a folder through a dialog box.
 
@@ -703,24 +705,6 @@ class Application(tk.Frame):
             )
         )
         return dir_path
-
-
-    def callback_select_infolder(self):
-        """Select input folder and check if it exists."""
-        dir_path = self.get_folder(self.infolder, "Select input folder")
-        if dir_path != self.PATH_FROM_EMPTY_SEGMENT:
-            self.infolder = dir_path
-            self.sv_infolder.set(shorten_path(dir_path))
-        self.do_checks(self.check_infolder)
-
-
-    def callback_select_outfolder(self):
-        """Select output folder and check if it exists."""
-        dir_path = self.get_folder(self.outfolder, "Select output folder")
-        if dir_path != self.PATH_FROM_EMPTY_SEGMENT:
-            self.outfolder = dir_path
-            self.sv_outfolder.set(shorten_path(dir_path))
-        self.do_checks(self.check_outfolder)
 
 
     # >·········· CHECKS ··········< #
@@ -753,15 +737,61 @@ class Application(tk.Frame):
             Error message (if any) to be displayed
             in the status bar.
         """
-        print('Checking package...')  # !!!
         package = self.cbox_package.get()
         if not package:
             message = "Please select a Python package"
-            print(f'not package: {repr(package)}')  # !!!
         else:
-            print('Package is OK')  # !!!
             message = self.NO_ERROR
         return message
+
+
+    def check_infile(self):
+        """Check that user has specified an input file, it exists,
+        and its extension is compatible with the selected package.
+
+        Returns
+        -------
+        str
+            Error message (if any) to be displayed
+            in the status bar.
+        """
+        filename = self.sv_infile.get()
+        if not filename:
+            return "Please specify the input file"
+        
+        folder = self.infolder
+        file_path = Path(folder).joinpath(filename)
+        if not file_path.is_file():
+            return "Input file not found"
+        
+        suffix = file_path.suffix.casefold()
+        if not self.is_extension_compatible(suffix):
+            return ("Input file extension not compatible "
+                    "with selected Python package")
+
+        return self.NO_ERROR
+
+
+    def check_outfile(self):
+        """Check that user has specified an output file, and its
+        extension is compatible with the selected Python package.
+
+        Returns
+        -------
+        str
+            Error message (if any) to be displayed
+            in the status bar.
+        """
+        filename = self.sv_outfile.get()
+        if not filename:
+            return "Please specify the output file"
+
+        suffix = Path(filename).suffix.casefold()
+        if not self.is_extension_compatible(suffix):
+            return ("Output file extension not compatible "
+                    "with selected Python package")
+
+        return self.NO_ERROR
 
 
     def check_infolder(self):
@@ -769,14 +799,15 @@ class Application(tk.Frame):
 
         Returns
         -------
-        `None`.
-
-        Raises
-        ------
-        `FileNotFoundError`.
+        message : str
+            Error message (if any) to be displayed
+            in the status bar.
         """
         if not self.infolder.is_dir():
-            raise FileNotFoundError("Input folder not found")
+            message = "Input folder not found"
+        else:
+            message = self.NO_ERROR
+        return message
 
 
     def check_outfolder(self):
@@ -784,14 +815,15 @@ class Application(tk.Frame):
 
         Returns
         -------
-        `None`.
-
-        Raises
-        ------
-        `FileNotFoundError`.
+        message : str
+            Error message (if any) to be displayed
+            in the status bar.
         """
         if not self.outfolder.is_dir():
-            raise FileNotFoundError("Output folder not found")
+            message = "Output folder not found"
+        else:
+            message = self.NO_ERROR
+        return message
 
 
     def is_extension_compatible(self, extension):
@@ -812,58 +844,6 @@ class Application(tk.Frame):
         dwg_fail = (extension != self.DWG) and (package in self.REQUIRES_DWG)
         dxf_fail = (extension != self.DXF) and (package in self.REQUIRES_DXF)
         return not(dxf_fail or dwg_fail)
-
-
-    def check_infile(self):
-        """Check that user has specified an input file, it exists,
-        and its extension is compatible with the selected package.
-
-        Returns
-        -------
-        `None`.
-
-        Raises
-        ------
-        `FileNotSpecifiedError`, `FileNotFoundError` or
-        `ExtensionNotCompatibleError`.
-        """
-        folder = self.infolder
-        filename = self.sv_infile.get()
-        if not filename:
-            raise FileNotSpecifiedError("Please specify the input file")
-        file_path = Path(folder).joinpath(filename)
-        if not file_path.is_file():
-            raise FileNotFoundError("Input file not found")
-        suffix = file_path.suffix.casefold()
-        if not self.is_extension_compatible(suffix):
-            raise ExtensionNotCompatibleError(
-                "Input file extension not compatible "
-                "with selected Python package"
-            )
-
-
-    def check_outfile(self):
-        """Check that user has specified an output file, and its
-        extension is compatible with the selected Python package.
-
-        Returns
-        -------
-        `None`.
-
-        Raises
-        ------
-        `FileNotSpecifiedError`, `FileNotFoundError` or
-        `ExtensionNotCompatibleError`.
-        """
-        filename = self.sv_outfile.get()
-        if not filename:
-            raise FileNotSpecifiedError("Please specify the output file")
-        suffix = Path(filename).suffix.casefold()
-        if not self.is_extension_compatible(suffix):
-            raise ExtensionNotCompatibleError(
-                "Output file extension not compatible "
-                "with selected Python package"
-            )
 
 
     def do_checks_old(self, *checks):  # !!!
@@ -909,8 +889,6 @@ class Application(tk.Frame):
                 break
         else:
             self.sv_status.set(self.NO_ERROR)
-            
-            
 
 
     # >·········· FACTORIES ··········< #
