@@ -133,9 +133,9 @@ class PrefixAdder():
                 Delay (in seconds) after pressing the enter key.
             """
             pgui.typewrite(f"{keyboard_input}\n")
-            # Trailing "\n" is equivalent to the following two calls
-            #pgui.keyDown("enter")
-            #pgui.keyUp("enter")
+            # Trailing "\n" is equivalent to the following two calls:
+            # pgui.keyDown("enter")
+            # pgui.keyUp("enter")
             time.sleep(delay)
 
         # If the file is already open, the following line:
@@ -866,25 +866,27 @@ class Application(tk.Frame):
             self.sv_status.set(message)
 
 
-    def do_checks(self, *widgets):
+    def do_checks(self, *options):
         """Check the values of the passed widgets.
 
         Parameters
         ----------
-        widgets : tuple
-            Comma-separated widgets whose values
-            are going to be checked.
+        options : tuple of str
+            Comma-separated variables whose values
+            are going to be checked. They can be:
+            'prefix', 'package', 'infile', 'infolder',
+            'outfile' and 'outfolder'.
         """
-        for widget in widgets:
-            method_name = "check_" + widget
+        for option in options:
+            method_name = "check_" + option
             check_widget = getattr(self, method_name)
             message = check_widget()
             if message == self.NO_ERROR:
-                self.valid_input[widget] = True
-                self.error_message[widget] = self.NO_ERROR
+                self.valid_input[option] = True
+                self.error_message[option] = self.NO_ERROR
             else:
-                self.valid_input[widget] = False
-                self.error_message[widget] = message
+                self.valid_input[option] = False
+                self.error_message[option] = message
                 self.sv_status.set(message)
                 break
         else:
@@ -916,6 +918,7 @@ class Application(tk.Frame):
         )
 
 
+    # >·········· MAIN FUNCTIONALITY ··········< #
     def run(self):
         """Perform prefixing task.
 
@@ -923,10 +926,7 @@ class Application(tk.Frame):
         -------
         `None`.
         """
-        self.do_checks(
-            self.check_prefix,
-            self.check_package,
-        )
+        self.do_checks('prefix', 'package')
         _ = input('AFV: ')
         package = self.cbox_package.get()
         if package in (self.REQUIRES_DWG + self.REQUIRES_DXF):
