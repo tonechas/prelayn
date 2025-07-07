@@ -9,7 +9,15 @@ Application for automatically **PRE**fixing **LAY**er **N**ames of AutoCAD drawi
 - [`pyautogui`](https://github.com/asweigart/pyautogui)
 - [`ezdxf`](https://github.com/mozman/ezdxf)
 
-## Installation
+## 📄 Publication
+
+This work was presented at the **INGEGRAF 2025 International Conference on Graphic Engineering**, held in Seville, Spain.
+
+- 📘 **Conference**: [INGEGRAF 2025 – International Conference on Graphic Engineering](https://www.ingegraf2025.com/INGEGRAF2025)  
+- 📄 **Manuscript (PDF)**: [Download preprint](https://github.com/tonechas/prelayn/docs/prelayn-manuscript.pdf)  
+- 📊 **Slides (PDF)**: [Download presentation](https://github.com/tonechas/prelayn/docs/prelayn-presentation.pdf)
+
+## ⚙️ Installation
 
 1. Clone this repository:
 ```console
@@ -32,7 +40,7 @@ C:\Users\Me>path\to\venvs\directory\myvenv\Scripts\activate
 (myvenv) C:\Users\Me\prelayn>pip install -r requirements.txt
 ```
 
-## Usage
+## 🚀 Usage
 To run the application, execute the following commands:
 ```console
 (myvenv) C:\Users\Me\prelayn>cd src
