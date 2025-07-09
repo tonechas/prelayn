@@ -11,11 +11,10 @@ Application for automatically **PRE**fixing **LAY**er **N**ames of AutoCAD drawi
 
 ## 📄 Publication
 
-This work was presented at the **INGEGRAF 2025 International Conference on Graphic Engineering**, held in Seville, Spain.
+This work was presented at the <a href="https://www.ingegraf2025.com/INGEGRAF2025" target="_blank">34th INGEGRAF International Conference</a>, held in Seville, Spain, from 25 to 27 June 2025.
 
-- 📘 **Conference**: [INGEGRAF 2025 – International Conference on Graphic Engineering](https://www.ingegraf2025.com/INGEGRAF2025)  
-- 📄 **Manuscript (PDF)**: [Download preprint](https://github.com/tonechas/prelayn/docs/prelayn-manuscript.pdf)  
-- 📊 **Slides (PDF)**: [Download presentation](https://github.com/tonechas/prelayn/docs/prelayn-presentation.pdf)
+- <a href="https://github.com/tonechas/prelayn/tree/main/docs/prelayn-manuscript.pdf" target="_blank">Manuscript (preprint)</a>
+- <a href="https://github.com/tonechas/prelayn/tree/main/docs/prelayn-presentation.pdf" target="_blank">Presentation slides</a>
 
 ## ⚙️ Installation
 
